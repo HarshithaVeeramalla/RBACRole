@@ -1,0 +1,33 @@
+name: Deploy RBAC
+# Deploys when push is made
+
+on:
+    push:
+        branches: 
+            - main
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: checkout
+      uses: actions/checkout@v4
+
+    - name: azure login
+      uses: azure/login@v1
+      with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create RBAC Role
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az ad sp create-for-rbac --name "ConsoleApp24April" --role Reader --scopes /subscriptions/b83c1ed3-c5b6-44fb-b5ba-2b83a074c23f/resourceGroups/v-harshithav-Mindtree --sdk-auth
+   
+  # Azure logout
+    - name: logout
+      run: |
+            az logout
+      if: always()
